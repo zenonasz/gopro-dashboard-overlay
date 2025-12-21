@@ -13,28 +13,33 @@ clean:
 
 .PHONY: dist
 dist:
-	$(BIN)/pip install --upgrade setuptools wheel twine build
+	$(BIN)/pip install --upgrade twine build
 	$(BIN)/python -m build
 
 .PHONY: test
 test:
-	TEST=true PYTHONPATH=. $(BIN)/pytest --capture sys --show-capture all tests
+	pip install -e '.[test]'
+	TEST=true $(BIN)/pytest --capture sys --show-capture all tests
 
 .PHONY: ci
 ci:
-	CI=true PYTHONPATH=. $(BIN)/pytest --capture sys --show-capture all tests
+	pip install -e '.[test]'
+	CI=true $(BIN)/pytest --capture sys --show-capture all tests
 
 .PHONY: check
 check:
+	pip install -e '.[test]'
 	CI=true PYTHONPATH=. $(BIN)/pytest --capture sys --show-capture all -m "not gfx"  tests
 
 .PHONY: check-gfx
 check-gfx:
-	PYTHONPATH=. $(BIN)/pytest --capture sys --show-capture all -m "gfx"  tests
+	pip install -e '.[test]'
+	$(BIN)/pytest --capture sys --show-capture all -m "gfx"  tests
 
 .PHONY: check-cairo
 check-cairo:
-	PYTHONPATH=. $(BIN)/pytest --capture sys --show-capture all -m "cairo"  tests
+	pip install -e '.[test]'
+	$(BIN)/pytest --capture sys --show-capture all -m "cairo"  tests
 
 
 .PHONY: flake
@@ -53,7 +58,7 @@ venv/.installed:
 .PHONY: req
 req: venv/.installed
 	$(BIN)/python -m pip install --upgrade pip
-	$(BIN)/pip install -r requirements-dev.txt
+	$(BIN)/pip install -e '.[dev,test]'
 
 
 .PHONY: test-publish
@@ -113,7 +118,8 @@ doc: doc-examples doc-map-examples
 
 .PHONY: publish
 publish: ensure-not-released ensure-pristine clean test-distribution
-	$(BIN)/pip install --upgrade setuptools wheel twine
+	$(BIN)/pip install --upgrade twine
+	$(BIN)/python -m build
 	$(BIN)/twine check dist/*
 	$(BIN)/twine upload --skip-existing --non-interactive --repository pypi dist/*
 	git tag v$(CURRENT_VERSION)
@@ -121,13 +127,13 @@ publish: ensure-not-released ensure-pristine clean test-distribution
 
 .PHONY: bump
 bump:
-	$(BIN)/pip install bumpversion
-	$(BIN)/bumpversion minor
+	$(BIN)/pip install bump-my-version
+	$(BIN)/bump-my-version minor
 
 .PHONY: bump-major
 bump-major:
-	$(BIN)/pip install bumpversion
-	$(BIN)/bumpversion major
+	$(BIN)/pip install bump-my-version
+	$(BIN)/bump-my-version major
 
 
 .PHONY: help
