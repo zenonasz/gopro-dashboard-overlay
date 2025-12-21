@@ -68,27 +68,26 @@ test-publish: dist
 	$(BIN)/twine upload --non-interactive --repository testpypi dist/*
 
 
-DIST_TEST=$(realpath tmp/dist-test)
+DIST_TEST=tmp/dist-test
 CURRENT_VERSION=$(shell PYTHONPATH=. $(PYTHON) -c 'import gopro_overlay.__version__;print(gopro_overlay.__version__.__version__)')
 
 .PHONY: version
 version:
 	@echo $(CURRENT_VERSION)
 
-
 .PHONY: test-distribution-install
 test-distribution-install: dist
 	@echo "Current Version is $(CURRENT_VERSION)"
 	rm -rf $(DIST_TEST)
+	mkdir -p $(DIST_TEST)
 	rm -rf gopro_overlay.egg-info
 	$(PYTHON) -m venv $(DIST_TEST)/venv
-	$(DIST_TEST)/venv/bin/pip install wheel dist/gopro_overlay-$(CURRENT_VERSION).tar.gz
-	$(DIST_TEST)/venv/bin/pip install pycairo==1.23.0
-	$(DIST_TEST)/venv/bin/pip install pytest
+	$(DIST_TEST)/venv/bin/python -m pip install --upgrade pip
+	$(DIST_TEST)/venv/bin/pip install "dist/gopro_overlay-$(CURRENT_VERSION).tar.gz[test]"
 
 .PHONY: test-distribution-test
 test-distribution-test:
-	PYTHONPATH=. DISTRIBUTION=$(DIST_TEST)/venv $(DIST_TEST)/venv/bin/pytest --capture sys --show-capture all tests-dist
+	PYTHONPATH=. DISTRIBUTION=$(realpath $(DIST_TEST))/venv $(DIST_TEST)/venv/bin/pytest --capture sys --show-capture all tests-dist
 
 .PHONY: test-distribution
 test-distribution: test-distribution-install test-distribution-test
