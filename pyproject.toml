@@ -40,8 +40,8 @@ Source = "https://github.com/time4tea/gopro-dashboard-overlay"
 
 [project.optional-dependencies]
 cairo=["pycairo==1.28.0"]
-test = ["pytest", "pycairo==1.28.0"]
-dev = ["black", "viztracer", "bump-my-version"]
+test = ["gopro-overlay[cairo]", "pytest"]
+dev = ["gopro-overlay[test]", "black", "viztracer", "bump-my-version"]
 
 
 [tool.setuptools]
