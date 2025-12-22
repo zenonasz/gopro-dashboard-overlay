@@ -17,11 +17,11 @@ from gopro_overlay.timing import PoorTimer
 from gopro_overlay.units import units
 from gopro_overlay.widgets.map import MovingJourneyMap, view_window
 from gopro_overlay.widgets.widgets import Translate, Frame, SimpleFrameSupplier
-from tests.widgets import test_widgets_setup
-from tests.approval import approve_image
-from tests.widgets.test_widgets import time_rendering
-from tests.widgets.test_widgets_setup import rng
-from tests.testenvironment import is_make
+from widgets import test_widgets_setup
+from approval import approve_image
+from widgets.test_widgets import time_rendering
+from widgets.test_widgets_setup import rng
+from testenvironment import is_make
 
 font = test_widgets_setup.font
 ts = test_widgets_setup.ts

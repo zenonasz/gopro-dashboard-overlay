@@ -18,27 +18,27 @@ dist:
 
 .PHONY: test
 test:
-	pip install -e '.[test]'
+	$(BIN)/pip install -e '.[test]'
 	TEST=true $(BIN)/pytest --capture sys --show-capture all tests
 
 .PHONY: ci
 ci:
-	pip install -e '.[test]'
+	$(BIN)/pip install -e '.[test]'
 	CI=true $(BIN)/pytest --capture sys --show-capture all tests
 
 .PHONY: check
 check:
-	pip install -e '.[test]'
-	CI=true PYTHONPATH=. $(BIN)/pytest --capture sys --show-capture all -m "not gfx"  tests
+	$(BIN)/pip install -e '.[test]'
+	CI=true $(BIN)/pytest --capture sys --show-capture all -m "not gfx"  tests
 
 .PHONY: check-gfx
 check-gfx:
-	pip install -e '.[test]'
+	$(BIN)/pip install -e '.[test]'
 	$(BIN)/pytest --capture sys --show-capture all -m "gfx"  tests
 
 .PHONY: check-cairo
 check-cairo:
-	pip install -e '.[test]'
+	$(BIN)/pip install -e '.[test]'
 	$(BIN)/pytest --capture sys --show-capture all -m "cairo"  tests
 
 

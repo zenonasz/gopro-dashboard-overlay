@@ -6,7 +6,7 @@ from pint.registry import Quantity
 
 from gopro_overlay import fit
 from gopro_overlay.units import units
-from tests.test_gpx import file_path_of_test_asset
+from test_gpx import file_path_of_test_asset
 
 
 def test_converting_fit_without_power_to_timeseries():

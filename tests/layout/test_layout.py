@@ -10,9 +10,9 @@ from gopro_overlay.layout_xml import layout_from_xml, load_xml_layout, Converter
 from gopro_overlay.privacy import NoPrivacyZone
 from gopro_overlay.timing import PoorTimer
 from gopro_overlay.widgets.widgets import SimpleFrameSupplier
-from tests.approval import approve_image
-from tests.font import load_test_font
-from tests.testenvironment import is_make
+from approval import approve_image
+from font import load_test_font
+from testenvironment import is_make
 
 # Need reproducible results for approval tests
 rng = random.Random()

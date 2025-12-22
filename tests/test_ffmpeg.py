@@ -14,7 +14,7 @@ from gopro_overlay.ffmpeg import FFMPEG
 from gopro_overlay.ffmpeg_gopro import FFMPEGGoPro
 from gopro_overlay.ffmpeg_overlay import FFMPEGOverlay, FFMPEGOptions, FFMPEGOverlayVideo
 from gopro_overlay.timeunits import timeunits
-from tests.test_timeseries import datetime_of
+from test_timeseries import datetime_of
 
 ffprobe_output = (Path(__file__).parent / "test_ffmpeg_ffprobe_output.json").read_text()
 
