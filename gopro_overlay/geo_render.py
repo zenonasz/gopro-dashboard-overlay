@@ -28,8 +28,7 @@ class ImageTileCache:
 
     def do_download(self, downloader, tiles: List[Tile]) -> List[Tile]:
         task = self.do_async_download(downloader, tiles)
-        loop = asyncio.get_event_loop()
-        return loop.run_until_complete(task)
+        return asyncio.run(task)
 
     def as_image(self, data):
         f = io.BytesIO(data)
