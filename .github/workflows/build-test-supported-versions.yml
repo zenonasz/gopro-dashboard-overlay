@@ -12,7 +12,7 @@ jobs:
     strategy:
       matrix:
         version: [ "3.11", "3.12" ]
-    runs-on: ubuntu-latest
+    runs-on: act-fast
 
     steps:
     - uses: actions/checkout@v4
