@@ -23,6 +23,7 @@ jobs:
     - name: Update apt
       run: |
         sudo apt update
+        sudo apt -y upgrade
     - name: Install dependencies
       run: |
         sudo apt install -y fonts-roboto ffmpeg libcairo2-dev
