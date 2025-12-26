@@ -1,3 +1,86 @@
+## WunderLINQ support
+
+This fork adds built‑in support for the BlackBoxEmbedded **[WunderLINQ](https://www.blackboxembedded.com)** hardware used on BMW motorcycles.  The device records speed, RPM, gear, temperatures, tyre pressures, fuel range and many other values in CSV format.  To use these metrics in your overlays:
+
+1. **Convert WunderLINQ CSV to GPX.**  A patched version of the [`gpx-converter`](https://github.com/nidhaloff/gpx-converter) library reads the WunderLINQ CSV schema and writes custom GPX extensions (namespace `https://wunderlinq.local/ns/1`).  Non‑numeric values (like VIN or gear) are preserved as strings.  After converting, pass the generated GPX file to `gopro-dashboard.py` as usual.
+The modifications used here live in **[this fork of gpx-converter](https://github.com/zenonasz/gpx-converter)** and are considered part of the overall WunderLINQ → GPX → overlay workflow.
+
+2. **Parse custom GPX extensions.**  
+In this fork, the `fudge()` function reads every GPX extension element, storing unrecognised fields in an `extras` dictionary.  
+`with_unit()` then performs a best-effort normalisation into `pint` quantities based on field suffixes (e.g. `_kmh`, `_m`, `_km`, `_c`, `_deg`, `_bar`, `_kpa`, `_v`, `_rpm`).  
+Telemetry exported from the WunderLINQ app may use different unit preferences (e.g. km/h vs mph, °C vs °F, km vs miles).  
+At present, the normalisation logic explicitly covers metric-based suffixes only. Support for imperial units (e.g. `_mph`, `_mi`, `_f`) is not yet implemented, but the extension model is designed to support this cleanly.  
+The expected approach is that the GPX conversion step preserves the original unit in the extension field name (for example `_mph` instead of `_kmh`), after which `with_unit()` can be extended with additional suffix mappings to normalise those values in the same way.
+Note: the current implementation always preserves WunderLINQ fields with a `wlinq_` prefix, while other namespaces fall back to using the element local name only (e.g. `<vendor:sensor_value>` becomes `sensor_value`).  
+If you want to support multiple namespaces safely (to avoid name collisions and to expose fields as `vendor_sensor_value`), you should extend the namespace-to-prefix mapping in `gopro_overlay/gpx.py` (see `WLINQ_URI` handling inside `fudge()`), and optionally extend `with_unit()` suffix mappings for any additional units.
+
+
+3. **Expose metrics on `Entry`.**  When converting a GPX file to a time series, the `gpx_to_timeseries()` helper merges the `extras` dictionary into each `Entry`, so fields like `wlinq_rpm` or `wlinq_front_tire_pressure_bar` can be referenced directly in layouts.
+
+4. **New layout metrics and widgets.**  The XML parser (`layout_xml.py`) has been extended with metric accessors for each WunderLINQ field (speed, engine temp, tyre pressures, fuel consumption, battery voltage, lean angle, bearing, etc.).  A new `create_text_metric()` helper renders string values (e.g. current gear).  Two new compass widgets (`create_compass_metric()` and `create_compass_arrow_metric()`) draw a compass dial and pointer using heading/bearing values from WunderLINQ sensors.
+
+### Summary of code changes
+
+- Extended `fudge()` to capture **all** GPX extension values and store unknown fields in `extras`.
+- Added unit conversion for `extras` fields in `with_unit()`, with sensible defaults for speed, distance, temperature, pressure, voltage and percentages.
+- Modified `gpx_to_timeseries()` to merge `extras` into each `Entry`.
+- Added a text accessor (`text_accessor_from`) and `create_text_metric()` widget for displaying string metrics like gear and VIN.
+- Added new metric accessors in `metric_accessor_from()` for all WunderLINQ values (RPM, tyre pressure, odometer/trip counters, throttle/brakes, engine/ambient temperature, fuel economy, lean angle, bearing, battery voltage, etc.).
+- Added compass widgets to visualise heading/bearing and orientation.
+- Patched the `gpx-converter` dependency to convert WunderLINQ CSV logs into GPX with the correct namespace and data types.
+
+### New layouts and configuration
+
+Three example layouts tailored for WunderLINQ data are provided under `examples/layout/wunderlinq`:
+
+- `adventure-4k-3840x2160_map.xml`  
+- `adventure-4k-3840x2160.xml`  
+- `adventure-v4k-2160x3840.xml`
+
+A corresponding `config` directory contains sample configuration files for maps, fonts, colours and FFMPEG profiles.  You can point the dashboard at this directory with `--config-dir config/` during testing, or copy its contents into your to another folder for amendments and a permanent use.
+
+### Building and running
+
+This fork can be installed and run using either the upstream `pip`/`venv` instructions or the faster `uv` workflow described above.  Both approaches are fully supported.
+
+Here are some example commands:
+
+- **Preview a layout** (no video output):
+
+```bash
+
+  gopro-layout.py examples/layout/wunderlinq/adventure-v4k-2160x3840.xml \
+      --overlay-size 2160x3840 \
+      --config-dir config/
+```
+
+- **Generate a video** (overlay rendered on top of a GPX track):
+
+```bash
+
+  gopro-dashboard.py --use-gpx-only \
+    --gpx /path/to/your-converted-file.gpx \
+    --layout xml \
+    --layout-xml examples/layout/wunderlinq/adventure-v4k-2160x3840.xml \
+    --overlay-size 2160x3840 \
+    --config-dir config/ \
+    --debug-metadata \
+    output-path/output.mov
+```
+
+
+
+
+For further tips on configuring FFMPEG profiles, choosing overlay sizes and rendering videos efficiently, see this blog post on romainpellerin.eu about creating GPX overlay [videos on Linux](https://romainpellerin.eu/creating-gpx-overlay-videos-on-linux.html)
+. It describes how to prepare a GPX file, select a map style, adjust frame rate and bitrate via a JSON profile, and tune performance on different hardware. While the layouts in that article differ from the WunderLINQ examples, the general guidance on command‑line flags and configuration files applies equally to this fork.
+
+Although this fork currently focuses on WunderLINQ telemetry, the changes introduced here are intentionally generic.  
+The same approach may evolve into a more general GPX workflow for handling custom extension namespaces, where external devices or data sources expose additional telemetry via `<extensions>` elements and layouts consume those values without requiring changes to the core rendering pipeline.
+
+
+---
+
+
 # Create video overlays from GoPro Videos or any GPX/FIT file
 
 <a href="https://github.com/time4tea/gopro-dashboard-overlay/discussions"><img alt="GitHub Discussions" src="https://img.shields.io/github/discussions/time4tea/gopro-dashboard-overlay?style=for-the-badge"></a>

@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Callable, Optional, TypeVar, Tuple
 
 import pint
+from pint import Quantity
 from pint.formatting import format_unit
 
 from gopro_overlay import layouts
@@ -269,6 +270,21 @@ def rgbattr(el, a, d) -> Optional[Tuple]:
 def at(el) -> Coordinate:
     return Coordinate(iattrib(el, "x", d=0), iattrib(el, "y", d=0))
 
+def text_accessor_from(name: str) -> Callable[[Entry], Optional[str]]:
+    accessors = {
+        # WunderLINQ string-ish values
+        "wlinq.gear": lambda e: getattr(e, "wlinq_gear", None),
+        "gear": lambda e: getattr(e, "wlinq_gear", None),
+
+        "wlinq.vin": lambda e: getattr(e, "wlinq_vin", None),
+
+        # Optional: any other custom string fields you may add later
+        # "wlinq.mode": lambda e: getattr(e, "wlinq_mode", None),
+    }
+    if name in accessors:
+        return accessors[name]
+    raise IOError(f"The text metric '{name}' is not supported. Use one of: {list(accessors.keys())}")
+
 
 def metric_accessor_from(name: str) -> Callable[[Entry], Optional[pint.Quantity]]:
     accessors = {
@@ -310,6 +326,70 @@ def metric_accessor_from(name: str) -> Callable[[Entry], Optional[pint.Quantity]
         "lat": lambda e: units.Quantity(e.point.lat, units.location),
         "lon": lambda e: units.Quantity(e.point.lon, units.location),
         "sdps": lambda e: e.sdps, # Vaaka cadence sensor distance-per-stroke field
+
+
+        # --------------------------------------------------------------------
+        # WunderLINQ / custom GPX extension metrics (we will populate later)
+        # Use getattr() so this file works even before Entry is extended.
+        # --------------------------------------------------------------------
+
+        # Speed-related from WunderLINQ (kept separate from GPX "speed" if desired)
+        "wlinq.speed_kmh": lambda e: getattr(e, "wlinq_speed_kmh", None),
+        "wlinq.gps_speed_kmh": lambda e: getattr(e, "wlinq_gps_speed_kmh", None),
+        "wlinq.rear_wheel_speed_kmh": lambda e: getattr(e, "wlinq_rear_wheel_speed_kmh", None),
+
+        # Engine / drivetrain
+        "rpm": lambda e: getattr(e, "wlinq_rpm", None),
+        "wlinq.rpm": lambda e: getattr(e, "wlinq_rpm", None),
+        # "gear": lambda e: getattr(e, "wlinq_gear", None),
+        # "wlinq.gear": lambda e: getattr(e, "wlinq_gear", None),
+
+        # Temperatures
+        "wlinq.engine_temp_c": lambda e: getattr(e, "wlinq_engine_temp_c", None),
+        "wlinq.ambient_temp_c": lambda e: getattr(e, "wlinq_ambient_temp_c", None),
+
+        # Tyres (you had these in CSV mapping; only present if you export them)
+        "wlinq.front_tire_pressure_bar": lambda e: getattr(e, "wlinq_front_tire_pressure_bar", None),
+        "wlinq.rear_tire_pressure_bar": lambda e: getattr(e, "wlinq_rear_tire_pressure_bar", None),
+
+        # Odometer / trips
+        "wlinq.odometer_km": lambda e: getattr(e, "wlinq_odometer_km", None),
+        "wlinq.trip1_km": lambda e: getattr(e, "wlinq_trip1_km", None),
+        "wlinq.trip2_km": lambda e: getattr(e, "wlinq_trip2_km", None),
+        "wlinq.trip_auto_km": lambda e: getattr(e, "wlinq_trip_auto_km", None),
+
+        # Consumption / fuel
+        "wlinq.avg_speed_kmh": lambda e: getattr(e, "wlinq_avg_speed_kmh", None),
+        "wlinq.current_consumption_l_per_100km": lambda e: getattr(e, "wlinq_current_consumption_l_per_100km", None),
+        "wlinq.fuel_economy_1_l_per_100km": lambda e: getattr(e, "wlinq_fuel_economy_1_l_per_100km", None),
+        "wlinq.fuel_economy_2_l_per_100km": lambda e: getattr(e, "wlinq_fuel_economy_2_l_per_100km", None),
+        "wlinq.fuel_range_km": lambda e: getattr(e, "wlinq_fuel_range_km", None),
+
+        # Controls / signals
+        "wlinq.throttle_pct": lambda e: getattr(e, "wlinq_throttle_pct", None),
+        "wlinq.front_brakes": lambda e: getattr(e, "wlinq_front_brakes", None),
+        "wlinq.rear_brakes": lambda e: getattr(e, "wlinq_rear_brakes", None),
+        "wlinq.shifts": lambda e: getattr(e, "wlinq_shifts", None),
+
+        # Sensors
+        "wlinq.ambient_light": lambda e: getattr(e, "wlinq_ambient_light", None),
+        "wlinq.alt": lambda e: getattr(e, "wlinq_altitude_m", None),
+        "wlinq.barometer_kpa": lambda e: getattr(e, "wlinq_barometer_kpa", None),
+        "wlinq.g_force": lambda e: getattr(e, "wlinq_g_force", None),
+        "wlinq.lean_angle_mobile_deg": lambda e: getattr(e, "wlinq_lean_angle_mobile_deg", None),
+        "wlinq.lean_angle_deg": lambda e: getattr(e, "wlinq_lean_angle_deg", None),
+        "wlinq.bearing_deg": lambda e: getattr(e, "wlinq_bearing_deg", None),
+
+
+
+        # Device
+        "wlinq.battery_voltage_v": lambda e: getattr(e, "wlinq_battery_voltage_v", None),
+        "wlinq.device_battery_pct": lambda e: getattr(e, "wlinq_device_battery_pct", None),
+
+        # Identifiers / strings (note: metric widgets expect Quantity; these will only be useful
+        # if you later implement a text widget that can render strings from Entry)
+        # Keep as placeholders so XML validation doesn't reject if you experiment.
+        # "wlinq.vin": lambda e: getattr(e, "wlinq_vin", None),
     }
     if name in accessors:
         return accessors[name]
@@ -403,6 +483,102 @@ class Widgets:
 
     def _font(self, element, name, d):
         return self.font(iattrib(element, name, d=d, r=range(1, 2000)))
+    
+     
+    @allow_attributes({"x", "y", "metric", "size", "align", "direction", "cache",
+                   "rgb", "outline", "outline_width", "prefix", "suffix", "empty"})
+    def create_text_metric(self, element: ET.Element, entry, **kwargs) -> Widget:
+        accessor = text_accessor_from(attrib(element, "metric"))
+
+        prefix = attrib(element, "prefix", d="")
+        suffix = attrib(element, "suffix", d="")
+        empty = attrib(element, "empty", d="")  # what to show if None/empty
+
+        def value():
+            v = accessor(entry())
+            if v is None:
+                return empty
+
+            # If it's a pint Quantity, render just the magnitude by default
+            if hasattr(v, "magnitude") and hasattr(v, "units"):
+                # drop trailing .0 for integer-like values
+                m = v.magnitude
+                if isinstance(m, float) and m.is_integer():
+                    s = str(int(m))
+                else:
+                    s = str(m)
+            else:
+                s = str(v)
+
+            s = s.strip()
+            if not s:
+                return empty
+            return f"{prefix}{s}{suffix}"
+
+        return text(
+            at=at(element),
+            value=value,
+            font=self._font(element, "size", d=32),
+            align=attrib(element, "align", d="left"),
+            direction=attrib(element, "direction", d="ltr"),
+            cache=battrib(element, "cache", d=True),
+            fill=rgbattr(element, "rgb", d=(255, 255, 255)),
+            stroke=rgbattr(element, "outline", d=(0, 0, 0)),
+            stroke_width=iattrib(element, "outline_width", d=2),
+    )
+
+    @allow_attributes({"size", "textsize", "metric", "units", "fg", "bg", "text"})
+    def create_compass_metric(self, element: ET.Element, entry, **kwargs) -> Widget:
+        accessor = metric_accessor_from(attrib(element, "metric", d="cog"))
+        converter = self.converters.converter(attrib(element, "units", d="none"))
+
+        def reading():
+            v = accessor(entry())
+            if v is None:
+                return 0
+            try:
+                v = converter(v)
+            except Exception:
+                pass
+            # expecting degrees magnitude
+            return float(v.m)
+
+        return Compass(
+            size=iattrib(element, "size", d=256),
+            reading=reading,
+            font=self._font(element, "textsize", d=16),
+            fg=rgbattr(element, "fg", d=(255, 255, 255)),
+            bg=rgbattr(element, "bg", d=None),
+            text=rgbattr(element, "text", d=(255, 255, 255)),
+        )
+    
+    @allow_attributes({"x", "y", "size", "metric", "units", "textsize",
+                   "arrow", "bg", "text", "outline", "arrow-outline"})
+    def create_compass_arrow_metric(self, element: ET.Element, entry, **kwargs) -> Widget:
+        metric_name = attrib(element, "metric", d="cog")
+        unit_name = attrib(element, "units", d=None)
+
+        reading = metric_value(
+            entry,
+            accessor=metric_accessor_from(metric_name),
+            converter=self.converters.converter(unit_name),
+            formatter=lambda q: q.m,
+            default=0
+        )
+
+        return Translate(
+            at=at(element),
+            widget=CompassArrow(
+                size=iattrib(element, "size", d=256),
+                reading=reading,
+                font=self._font(element, "textsize", d=32),
+                arrow=rgbattr(element, "arrow", d=(255, 255, 255)),
+                bg=rgbattr(element, "bg", d=(0, 0, 0, 0)),
+                text=rgbattr(element, "text", d=(255, 255, 255)),
+                outline=rgbattr(element, "outline", d=(0, 0, 0)),
+                arrow_outline=rgbattr(element, "arrow-outline", d=(0, 0, 0)),
+            )
+        )
 
     @allow_attributes(
         {"x", "y", "metric", "size", "format", "dp", "units", "align", "cache", "rgb", "outline", "outline_width"})

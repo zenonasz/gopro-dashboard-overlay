@@ -1,3 +1,11 @@
+## WunderLINQ and custom GPX extensions
+
+This package includes optional support for WunderLINQ motorcycle telemetry and other custom GPX extension namespaces.
+
+For full documentation, example layouts, configuration files, and advanced workflows, see the project README on GitHub:
+https://github.com/zenonasz/gopro-dashboard-overlay
+---
+
 # Create video overlays from GoPro Videos or any GPX/FIT file
 
 <a href="https://github.com/time4tea/gopro-dashboard-overlay/discussions"><img alt="GitHub Discussions" src="https://img.shields.io/github/discussions/time4tea/gopro-dashboard-overlay?style=for-the-badge"></a>

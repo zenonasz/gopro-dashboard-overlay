@@ -1,0 +1,269 @@
+<layout>
+  <!-- Adventure family — 3840x2160 -->
+  <!-- Standardised around module size 320 (journey_map) -->
+  <!-- Style: Roboto; glass panels via bg="0,0,0,128" and cr="24". -->
+
+
+  <composite x="60" y="272" name="barometer">
+      <component type="text" x="70" y="0" size="16">Bar(kPa)</component>
+      <component type="icon" x="0" y="0" file="barometer.png" size="64"/>
+      <component type="metric" x="70" y="18" metric="wlinq.barometer_kpa" dp="0" size="32" />
+  </composite>
+
+  <composite x="60" y="186" name="altitude">
+      <component type="metric_unit" x="70" y="0" metric="alt" units="alt" size="16">ALT({:~C})</component>
+      <component type="icon" x="0" y="0" file="mountain.png" size="64"/>
+      <component type="metric" x="70" y="18" metric="wlinq.alt" units="alt" dp="0" size="32" />
+  </composite>
+
+  <composite x="60" y="106" name="temperature">
+      <component type="metric_unit" x="70" y="0" size="16" metric="wlinq.ambient_temp_c" units="degreeC">TEMP({:~C})</component>
+      <component type="icon" x="0" y="0" file="thermometer.png" size="64"/>
+      <component type="metric" x="70" y="18" dp="0" size="32" metric="wlinq.ambient_temp_c" units="degreeC"/>
+  </composite>
+
+
+
+  <!-- Map + Compass (3840x2160) — mirror module for left side -->
+<composite x="60" y="1610" name="map_component">
+
+  <!-- Circuit map (256 module)  y=110 -->
+  <translate x="0" y="186">
+    <component
+      type="cairo_circuit_map"
+      size="256"
+      line-width="0.03"
+      loc-size="0.03"
+      fill="255,255,255,128"
+      outline="0,0,0,128"
+      loc-fill="0,191,255,128"
+      loc-outline="0,191,255,128"
+    />
+  </translate>
+
+  <!-- Compass (tight above map, anchored to map right edge) -->
+  <translate x="0" y="46">
+    <component
+      type="compass-metric"
+      name="compass"
+      size="128"
+      textsize="26"
+      text="0,191,255,128"
+      metric="wlinq.bearing_deg"
+      units="none"
+      fg="255,255,255,128"
+      bg="0,0,0,128"
+    />
+  </translate>
+
+</composite>
+
+
+
+
+
+
+  <translate x="1670" y="30">
+
+  <!-- Row 2: G -->
+      <translate >
+        <component
+          type="bar"
+          width="500"
+          height="28"
+          metric="wlinq.g_force"
+          units="none"
+          min="0"
+          max="2"
+          zero="255,255,255,128"
+          bar="255,255,255,128"
+          outline="255,255,255,128"
+          outline-width="2"
+          cr="12"
+        />
+        <component type="text" x="14" y="0" size="24" rgb="255,255,255, 128">G</component>
+        <component type="metric"
+                  x="240" y="16"
+                  metric="wlinq.g_force"
+                  units="none"
+                  size="24"
+                  rgb="255,255,255, 128"
+                  dp="2"
+                  align="centre" />
+      </translate>
+
+    
+
+  </translate>
+
+
+  <translate x="1670" y="2029">
+    <composite>
+
+      <!-- Row 1: Lean -->
+      <translate y="0">
+        <component
+          type="bar"
+          width="500"
+          height="28"
+          metric="wlinq.lean_angle_mobile_deg"
+          units="none"
+          min="-90"
+          max="90"
+          zero="255,255,255,128"
+          bar="0,191,255,128"
+          outline="255,255,255,128"
+          outline-width="2"
+          cr="12"
+        />
+        <component type="text" x="14" y="0" size="24" rgb="255,255,255,128">Lean</component>
+        <component type="metric"
+                  x="240" y="16"
+                  metric="wlinq.lean_angle_mobile_deg"
+                  units="none"
+                  size="24"
+                  rgb="255,255,255"
+                  dp="1"
+                  align="centre" />
+        <component type="text" x="430" y="0" size="20" rgb="200,200,200,128">deg</component>
+      </translate>
+
+      
+
+    </composite>
+  </translate>
+
+
+  <composite x="3770" y="30" name="date_and_time">
+      <component type="datetime" x="0" y="0" format="%Y/%m/%d" size="16" align="right" rgb="255,255,255,128"/>
+      <component type="datetime" x="0" y="24" format="%H:%M:%S.%f" truncate="5" size="32" rgb="255,255,255,128" align="right"/>
+  </composite>
+
+
+  <composite x="3770" y="186" name="eng_temperature">
+      <component type="metric_unit" x="-70" y="0" size="16" align="right" metric="wlinq.engine_temp_c" units="degreeC">ENG TEMP({:~C})</component>
+      <component type="icon" x="-64" y="0" file="engine.png" size="64"/>
+      <component type="metric" x="-70" y="18" metric="wlinq.engine_temp_c" units="degreeC" dp="0" size="32" align="right"/>
+  </composite>
+
+  <composite x="3770" y="106" name="tire">
+      <component type="text" x="-70" y="0" size="16" align="right">F / R</component>
+      <component type="icon" x="-64" y="0" file="tire.png" size="64"/>
+      <component type="metric" x="-70" y="18" metric="wlinq.front_tire_pressure_bar" units="bar" dp="2" size="32" align="right"/>
+      <component type="metric" x="-190" y="18" metric="wlinq.rear_tire_pressure_bar" units="bar" dp="2" size="32" align="right"/>
+  </composite>
+
+  <composite x="3770" y = "266" name="2col_temp">
+      <component type="metric_unit" x="-70" y="0" size="16" align="right" metric="wlinq.fuel_range_km" units="km">RANGE({:~P})</component>
+
+      <component type="icon" x="-64" y="0" file="road.png" size="64"/>
+      <component type="metric" x="-70" y="18" metric="wlinq.fuel_range_km" units="km" dp="0" size="32" align="right"/>
+
+      <component type="text" x="-70" y="80" size="16" align="right">ECO(L/100)</component>
+      <component type="icon" x="-64" y="80" file="eco.png" size="64"/>
+      <component type="metric" x="-70" y="18"  metric="wlinq.fuel_economy_1_l_per_100km" dp="1" size="32" align="right"/>
+  </composite>
+
+
+
+  <!-- Main composite for speed and rpm (3840x2160) -->
+<composite x="3230" y="1610" name="dash_main_component">
+
+  <!-- Top readouts cluster -->
+  <composite name="dash_readouts">
+
+    <!-- RPM gauge (256) x="185" 272 -->
+    <translate x="248" y="95">
+      <component
+        type="cairo-gauge-marker"
+        metric="wlinq.rpm"
+        units="rpm"
+        min="0"
+        max="10000"
+        start="90"
+        length="225"
+        size="256"
+        gauge-rgb="0,191,255,128"
+        dot-outer-rgb="0,191,255,128"
+        dot-inner-rgb="0,191,255,128"
+        tick-rgb="255,255,255,128"
+        background-rgb="0,0,0,0"
+      />
+    </translate>
+
+    <!-- Gear — pulled tight against gauge x="170"-->
+    <component
+      type="text-metric"
+      x="235"
+      y="292"
+      metric="wlinq.gear"
+      size="64"
+      empty="-"
+      rgb="255,255,255,128"
+    />
+
+    <!-- Speed  x="520" y=205-->
+    <component
+      type="metric"
+      x="520"
+      y="160"
+      metric="wlinq.speed_kmh"
+      units="kph"
+      dp="0"
+      size="128"
+      align="right"
+      rgb="255,255,255,128"
+    />
+
+    <!-- Speed unit y =178-->
+    <component
+      type="metric_unit"
+      x="520"
+      y="140"
+      metric="wlinq.speed_kmh"
+      units="kph"
+      size="24"
+      align="right"
+      rgb="0,191,255,128"
+    >{:~c}</component>
+
+  </composite>
+
+  <!-- Throttle label -->
+  <component
+    type="text"
+    x="520"
+    y="382"
+    size="26"
+    rgb="255,255,255,128"
+    align="right">THROTTLE</component>
+
+  <!-- Throttle bar — narrower & tighter x="170" width="360" -->
+  <translate x="235" y="418">
+    <component
+      type="zone-bar"
+      width="295"
+      height="24"
+      metric="wlinq.throttle_pct"
+      min="0"
+      max="100"
+      z1="35"
+      z2="70"
+      z3="90"
+      fill="0,0,0,0"
+      outline="255,255,255,128"
+      outline-width="3"
+      cr="9"
+      z0-rgb="0,0,0,128"
+      z1-rgb="0,255,255,128"
+      z2-rgb="0,240,255,128"
+      z3-rgb="0,191,255,128"
+    />
+  </translate>
+
+</composite>
+
+    
+
+
+</layout>

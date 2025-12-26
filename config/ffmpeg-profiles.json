@@ -1,0 +1,14 @@
+{
+    "vp9": {
+      "input": [],
+      "output": ["-vcodec", "vp9", "-pix_fmt", "yuva420p", "-r", "5"]
+    },
+    "mp4": {
+      "input": [],
+      "output": ["-vcodec", "libx264", "-r", "25"]
+    },
+    "png": {
+      "input": [],
+      "output": ["-vcodec", "png"]
+    }
+  }

@@ -1,0 +1,132 @@
+<layout>
+  <!-- Adventure — V4K 2160x3840 -->
+  <!-- Base modules: map=256, compass=128 -->
+  <!-- Margins: 120px -->
+
+  <!-- COMPASS (top-right) -->
+  <composite x="2012" y="20" name="compass_component">
+    <component
+      type="compass-metric"
+      name="compass"
+      size="128"
+      textsize="28"
+      text="0,191,255,128"
+      metric="wlinq.bearing_deg"
+      units="none"
+      fg="255,255,255,128"
+      bg="0,0,0,128"
+    />
+  </composite>
+
+  <!-- MAP (bottom-left) -->
+  <composite x="20" y="3464" name="map_component">
+    <component
+      type="cairo_circuit_map"
+      size="256"
+      line-width="0.03"
+      loc-size="0.03"
+      fill="255,255,255,128"
+      outline="0,0,0,128"
+      loc-fill="0,191,255,128"
+      loc-outline="0,191,255,128"
+    />
+  </composite>
+
+  <!-- MAIN DASH (same as previous V4K) -->
+  <composite x="1610" y="3278" name="dash_main_component">
+
+    <!-- Top readouts cluster -->
+    <composite name="dash_readouts">
+
+      <!-- RPM gauge (256) x="185" 272 -->
+      <translate x="248" y="95">
+        <component
+          type="cairo-gauge-marker"
+          metric="wlinq.rpm"
+          units="rpm"
+          min="0"
+          max="10000"
+          start="90"
+          length="225"
+          size="256"
+          gauge-rgb="0,191,255,128"
+          dot-outer-rgb="0,191,255,128"
+          dot-inner-rgb="0,191,255,128"
+          tick-rgb="255,255,255,128"
+          background-rgb="0,0,0,0"
+        />
+      </translate>
+
+      <!-- Gear — pulled tight against gauge x="170"-->
+      <component
+        type="text-metric"
+        x="235"
+        y="292"
+        metric="wlinq.gear"
+        size="64"
+        empty="-"
+        rgb="255,255,255,128"
+      />
+
+      <!-- Speed  x="520" y=205-->
+      <component
+        type="metric"
+        x="520"
+        y="160"
+        metric="wlinq.speed_kmh"
+        units="kph"
+        dp="0"
+        size="128"
+        align="right"
+        rgb="255,255,255,128"
+      />
+
+      <!-- Speed unit y =178-->
+      <component
+        type="metric_unit"
+        x="520"
+        y="140"
+        metric="wlinq.speed_kmh"
+        units="kph"
+        size="24"
+        align="right"
+        rgb="0,191,255,128"
+      >{:~c}</component>
+
+    </composite>
+
+    <!-- Throttle label -->
+    <component
+      type="text"
+      x="520"
+      y="382"
+      size="26"
+      rgb="255,255,255,128"
+      align="right">THROTTLE</component>
+
+    <!-- Throttle bar — narrower & tighter x="170" width="360" -->
+    <translate x="235" y="418">
+      <component
+        type="zone-bar"
+        width="295"
+        height="24"
+        metric="wlinq.throttle_pct"
+        min="0"
+        max="100"
+        z1="35"
+        z2="70"
+        z3="90"
+        fill="0,0,0,0"
+        outline="255,255,255,128"
+        outline-width="3"
+        cr="9"
+        z0-rgb="0,0,0,128"
+        z1-rgb="0,255,255,128"
+        z2-rgb="0,240,255,128"
+        z3-rgb="0,191,255,128"
+      />
+    </translate>
+
+  </composite>
+
+</layout>
