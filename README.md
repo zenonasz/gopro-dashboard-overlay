@@ -37,6 +37,10 @@ Three example layouts tailored for WunderLINQ data are provided under `examples/
 - `adventure-4k-3840x2160.xml`  
 - `adventure-v4k-2160x3840.xml`
 
+## Example
+
+![Example Dashboard Image](examples/layout/wunderlinq/adventure-v4k-2160x3840.PNG)
+
 A corresponding `config` directory contains sample configuration files for maps, fonts, colours and FFMPEG profiles.  You can point the dashboard at this directory with `--config-dir config/` during testing, or copy its contents into your to another folder for amendments and a permanent use.
 
 ### Building and running
