@@ -43,29 +43,60 @@ A corresponding `config` directory contains sample configuration files for maps,
 
 This fork can be installed and run using either the upstream `pip`/`venv` instructions or the faster `uv` workflow described above.  Both approaches are fully supported.
 
+#### Local development (editable install)
+
+For local development, the project can be installed in editable mode so that code changes are picked up immediately:
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -U pip setuptools wheel
+pip install -e .
+
+```
+
+### Optional (using`uv`)
+
+
+The same editable workflow is supported when using `uv` (`uv pip install -e .`).
+
+```bash
+
+uv venv --python 3.11 
+uv pip install -e .
+```
+
 Here are some example commands:
 
 - **Preview a layout** (no video output):
 
 ```bash
 
-  gopro-layout.py examples/layout/wunderlinq/adventure-v4k-2160x3840.xml \
-      --overlay-size 2160x3840 \
-      --config-dir config/
+gopro-layout.py examples/layout/wunderlinq/adventure-v4k-2160x3840.xml \
+    --overlay-size 2160x3840 \
+    --config-dir config/
+```
+
+example using uv, run with 'uv run <command>'
+
+```bash
+uv run gopro-layout.py examples/layout/wunderlinq/adventure-v4k-2160x3840.xml \
+    --overlay-size 2160x3840 \
+    --config-dir config/
 ```
 
 - **Generate a video** (overlay rendered on top of a GPX track):
 
 ```bash
 
-  gopro-dashboard.py --use-gpx-only \
-    --gpx /path/to/your-converted-file.gpx \
-    --layout xml \
-    --layout-xml examples/layout/wunderlinq/adventure-v4k-2160x3840.xml \
-    --overlay-size 2160x3840 \
-    --config-dir config/ \
-    --debug-metadata \
-    output-path/output.mov
+gopro-dashboard.py --use-gpx-only \
+  --gpx /path/to/your-converted-file.gpx \
+  --layout xml \
+  --layout-xml examples/layout/wunderlinq/adventure-v4k-2160x3840.xml \
+  --overlay-size 2160x3840 \
+  --config-dir config/ \
+  --debug-metadata \
+  output-path/output.mov
 ```
 
 
