@@ -9,7 +9,7 @@ from .gpmf import GPSFix
 from .point import Point
 from .timeseries import Timeseries, Entry
 
-GPX = collections.namedtuple("GPX", "time lat lon alt hr cad atemp power speed")
+GPX = collections.namedtuple("GPX", "time lat lon alt hr cad atemp power speed extras")
 
 
 def fudge(gpx):
