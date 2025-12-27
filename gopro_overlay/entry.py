@@ -1,6 +1,8 @@
 import datetime
 from datetime import timedelta
 
+import pint
+
 from gopro_overlay.log import log
 
 
@@ -47,10 +49,20 @@ class Entry:
             start = self.items[key]
             try:
                 end = other.items[key]
-                diff = end - start
-                interp = start + (diff * position)
+
+                # Handle string / state values (gear, vin, etc.)
+                if isinstance(start, str) or isinstance(end, str):
+                    interp = start if position < 0.5 else end
+                else:
+                    diff = end - start
+                    interp = start + (diff * position)
+
             except KeyError:
                 interp = None
+            except TypeError:
+                # Any other non-interpolatable values → step behavior
+                interp = start if position < 0.5 else other.items.get(key, start)
+
             items[key] = interp
 
         return Entry(dt, **items)
